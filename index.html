@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ระบบสำหรับกิจกรรมสายรหัส ภาควิชาสถิติ คณะพาณิชยศาสตร์และการบัญชี จุฬาลงกรณ์มหาวิทยาลัย (Stat CBS Chula) - ยินดีต้อนรับนิสิตใหม่ Stat 59">
+  <title>ระบบสายรหัส Stat CBS Chula - Welcome Stat 59</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Canvas สำหรับเอฟเฟกต์พลุกระดาษ (Confetti) ตอนเฉลย -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- ส่วนหัวเว็บและแบนเนอร์ Zootopia -->
+  <header class="app-header">
+    <div class="banner-container">
+      <img src="Banner Zootopia.PNG" alt="Banner Zootopia - Welcome Stat 59" class="banner-img" id="app-banner-img">
+      <div class="logo-overlay" id="stat-logo-container">
+        <img src="Stat logo.png" alt="Stat CBS Chula Logo" class="logo-img" id="stat-logo-img">
+      </div>
+    </div>
+  </header>
+
+  <!-- คอนเทนต์หลักของระบบ -->
+  <main class="main-container" id="main-content-layout">
+
+    <!-- ส่วนที่ 1: การยืนยันตัวตนเข้าระบบ (Authentication) -->
+    <section class="auth-wrapper" id="auth-section">
+      <div class="auth-card">
+        <h2>🔒 เข้าสู่ระบบสายรหัส</h2>
+        
+        <!-- ตัวเลือกบทบาท -->
+        <div class="role-selector" id="role-selector-group">
+          <button type="button" class="role-btn active" data-role="junior" id="role-select-junior">น้องรหัส</button>
+          <button type="button" class="role-btn" data-role="senior" id="role-select-senior">พี่รหัส</button>
+        </div>
+
+        <!-- ฟอร์มเข้าสู่ระบบ -->
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email" id="email-label">อีเมล (Email)</label>
+            <input type="email" id="login-email" class="input-control" placeholder="เช่น nick.wilde@gmail.com หรืออีเมลที่ลงทะเบียน" required>
+          </div>
+          <div class="form-group">
+            <label for="login-id" id="id-label">รหัสนิสิตน้องรหัส (10 หลัก)</label>
+            <input type="text" id="login-id" class="input-control" placeholder="เช่น 6832005042" pattern="\d{10}" title="กรุณากรอกรหัสนิสิตเป็นตัวเลข 10 หลัก" required>
+          </div>
+          
+          <button type="submit" class="submit-btn" id="login-submit-btn">เข้าสู่ระบบ</button>
+          <div class="error-msg" id="error-msg"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ส่วนที่ 2: หน้าแดชบอร์ดหลัก (Dashboard - เรนเดอร์แบบ Dynamic ด้วย Javascript) -->
+    <section id="dashboard-section" style="display: none;">
+      <!-- แดชบอร์ดของพี่รหัสหรือน้องรหัสจะแสดงในส่วนนี้ -->
+    </section>
+
+  </main>
+
+  <!-- ส่วนท้ายเว็บ (Footer) -->
+  <footer class="app-footer" id="app-main-footer">
+    <p class="footer-credit">Created by Pranon#stat58</p>
+    <p>© 2026 Department of Statistics, Chulalongkorn Business School. All Rights Reserved.</p>
+    <p style="margin-top: 5px; font-size: 0.75rem; color: rgba(255,255,255,0.2);">Zootopia Theme - Welcome Stat 59 to Our Home</p>
+  </footer>
+
+  <!-- แผงควบคุมผู้พัฒนา (Dev Tools Drawer สำหรับสลับบัญชีทดสอบด่วน) -->
+  <button class="dev-panel-toggle" id="dev-toggle" title="เปิดแผงควบคุมทดสอบระบบ">⚙️</button>
+  
+  <aside class="dev-drawer" id="dev-drawer">
+    <div class="dev-header">
+      <h3>🛠️ แผงควบคุมทดสอบ</h3>
+      <button class="close-dev-btn" id="close-dev">✕</button>
+    </div>
+
+    <!-- ส่วนปุ่มเข้าสู่ระบบด่วน -->
+    <div class="dev-section">
+      <h4>บัญชีจำลองในระบบ</h4>
+      <div class="dev-quick-links" id="dev-quick-links-container">
+        <!-- ปุ่มล็อกอินด่วนสำหรับสายรหัสต่างๆ -->
+      </div>
+    </div>
+
+    <!-- ส่วนระบบสำหรับวันงาน -->
+    <div class="dev-section" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+      <h4>ระบบพิเศษสำหรับวันงาน</h4>
+      <div class="dev-reveal-row" style="margin-bottom: 8px;">
+        <span>เปิดเผยคำใบ้พิเศษทั้งหมด</span>
+        <label class="switch">
+          <input type="checkbox" id="dev-toggle-special-hints" onchange="devToggleSpecialHintsGlobal()">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="dev-reveal-row">
+        <span>เปิดระบบทายสายรหัส</span>
+        <label class="switch">
+          <input type="checkbox" id="dev-toggle-guessing" onchange="devToggleGuessingGlobal()">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ส่วนปลดล็อก/เฉลยพี่รหัส -->
+    <div class="dev-section" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+      <h4>สถานะเฉลยพี่รหัส (แอดมิน)</h4>
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <button onclick="devRevealAll(true)" class="dev-btn" style="flex: 1; background: rgba(29, 233, 182, 0.15); border-color: var(--secondary-teal); color: var(--secondary-teal); justify-content: center; font-weight: 500;">
+          📢 เฉลยทั้งหมด
+        </button>
+        <button onclick="devRevealAll(false)" class="dev-btn" style="flex: 1; background: rgba(255, 255, 255, 0.05); justify-content: center; font-weight: 500;">
+          🔒 ซ่อนทั้งหมด
+        </button>
+      </div>
+      <div class="dev-reveal-group" id="dev-reveal-container">
+        <!-- ตัวเลือก Toggle เปิด/ปิด การเฉลยสายรหัส -->
+      </div>
+    </div>
+    
+    <div class="dev-section" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
+      <button onclick="resetDatabase()" class="dev-btn" style="background: rgba(255, 107, 107, 0.1); border-color: rgba(255, 107, 107, 0.3); color: #ff6b6b; justify-content: center; width: 100%;">
+        🔄 รีเซ็ตข้อมูลทั้งหมดกลับค่าเริ่มต้น
+      </button>
+    </div>
+  </aside>
+
+  <!-- Modal แสดงความยินดีเมื่อทายถูก -->
+  <div class="congrats-modal" id="congrats-modal">
+    <div class="congrats-content">
+      <div class="congrats-icon">🎉</div>
+      <h3 class="congrats-title">ถูกต้องนะคร้าบบบ!</h3>
+      <p class="congrats-subtitle">ยินดีด้วย! คุณเดาตัวตนพี่รหัสได้ถูกต้องแล้ว!</p>
+      <div class="congrats-box" id="congrats-senior-details">
+        <!-- แสดงชื่อพี่และสาขา -->
+      </div>
+      <button class="congrats-close-btn" id="congrats-close-btn">เย้! เข้าสู่ระบบ</button>
+    </div>
+  </div>
+
+  <!-- เชื่อมต่อฐานข้อมูลและตัวประมวลผลหลัก -->
+  <script src="database.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
