@@ -1040,7 +1040,7 @@ async function devLogin(role, email, id) {
     const res = await fetch("/api/dev-login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, email })
+      body: JSON.stringify({ role, email, adminId: currentSession?.user?.id })
     });
 
     if (res.ok) {
@@ -1649,8 +1649,8 @@ function renderAdminUsersTable(users) {
       return `
       <tr>
         <td>${escapeHtml(u.id)}</td>
-        <td>
-          <span style="font-size: 1.2rem; margin-right: 5px;">${escapeHtml(u.avatar || '')}</span>
+        <td style="cursor: pointer; color: var(--primary-teal); text-decoration: underline;" onclick="devLogin('senior', '${u.email}', '${u.id}')">
+          <span style="font-size: 1.2rem; margin-right: 5px; text-decoration: none;">${escapeHtml(u.avatar || '')}</span>
           ${escapeHtml(u.name)}
         </td>
         <td>${escapeHtml(u.lineage_id)}</td>
@@ -1672,8 +1672,8 @@ function renderAdminUsersTable(users) {
       return `
       <tr>
         <td>${escapeHtml(u.id)}</td>
-        <td>
-          <span style="font-size: 1.2rem; margin-right: 5px;">${escapeHtml(u.avatar || '')}</span>
+        <td style="cursor: pointer; color: var(--primary-teal); text-decoration: underline;" onclick="devLogin('junior', '${u.email}', '${u.id}')">
+          <span style="font-size: 1.2rem; margin-right: 5px; text-decoration: none;">${escapeHtml(u.avatar || '')}</span>
           ${escapeHtml(u.name)}
         </td>
         <td>${escapeHtml(u.lineage_id)}</td>
