@@ -714,7 +714,7 @@ function renderSeniorJuniorsList() {
         <h4>${jun.name}</h4>
         <p style="margin-bottom: 5px;">สาขา: ${jun.major}</p>
         ${jun.ig ? `<p style="color: var(--primary-teal); font-size: 0.85rem; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; background: rgba(29, 233, 182, 0.1); padding: 2px 8px; border-radius: 4px; margin-bottom: 5px;">📸 IG: ${jun.ig}</p>` : ''}
-        <p style="font-size: 0.85rem; color: var(--accent-orange); background: rgba(255,183,3,0.1); padding: 2px 8px; border-radius: 4px; display: inline-flex; margin-top: 5px;">🎁 ชอบ: ${jun.favorites || 'ยังไม่ได้ระบุ'}</p>
+        <p style="font-size: 0.85rem; color: var(--accent-orange); background: rgba(255,183,3,0.1); padding: 2px 8px; border-radius: 4px; display: block; word-break: break-word; overflow-wrap: break-word; margin-top: 5px;">🎁 ชอบ: ${jun.favorites || 'ยังไม่ได้ระบุ'}</p>
       </div>
     </div>
   `).join('');

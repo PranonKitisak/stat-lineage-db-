@@ -831,6 +831,12 @@ body {
   flex-shrink: 0; /* ป้องกันรูปเบี้ยวเวลามีเนื้อหาเยอะ */
 }
 
+.junior-card-details {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
 .junior-card-details h4 {
   font-family: 'Kanit', sans-serif;
   font-size: 1rem;
