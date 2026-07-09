@@ -396,9 +396,9 @@ function renderJuniorDashboard(user, lineage) {
             ${user.ig ? `<p style="color: #E1306C; font-size: 0.9rem;">📸 IG: ${user.ig}</p>` : ''}
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
               <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">สิ่งที่ชอบ (ให้พี่รหัสเห็น):</p>
-              <div style="display: flex; gap: 5px; align-items: center;">
-                <input type="text" id="junior-favorites-input" class="input-control" value="${user.favorites || 'ยังไม่ได้ระบุ'}" style="padding: 5px 10px; font-size: 0.85rem; margin-bottom: 0;">
-                <button class="primary-btn" onclick="saveFavorites()" style="padding: 5px 10px; font-size: 0.85rem; height: auto;">💾</button>
+              <div style="display: flex; gap: 8px; flex-direction: column;">
+                <textarea id="junior-favorites-input" class="input-control textarea-control" style="padding: 10px; font-size: 0.85rem; margin-bottom: 0; resize: vertical; min-height: 60px;">${user.favorites || 'ยังไม่ได้ระบุ'}</textarea>
+                <button class="primary-btn" onclick="saveFavorites()" style="padding: 8px 12px; font-size: 0.85rem; height: auto; align-self: flex-end;">💾 บันทึกสิ่งที่ชอบ</button>
               </div>
             </div>
           </div>
