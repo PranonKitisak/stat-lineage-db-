@@ -18,7 +18,9 @@ export async function onRequest(context) {
       
       const config = {
         specialHintsRevealed: false,
-        guessingEnabled: false
+        guessingEnabled: false,
+        globalChatEnabled: false,
+        adminAllowSpecialHint: false
       };
 
       results.results.forEach(row => {
@@ -26,39 +28,14 @@ export async function onRequest(context) {
           config.specialHintsRevealed = row.value === "true";
         } else if (row.key === "guessing_enabled") {
           config.guessingEnabled = row.value === "true";
+        } else if (row.key === "global_chat_enabled") {
+          config.globalChatEnabled = row.value === "true";
+        } else if (row.key === "admin_allow_special_hint") {
+          config.adminAllowSpecialHint = row.value === "true";
         }
       });
 
       return new Response(JSON.stringify(config), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    } catch (err) {
-      return new Response(JSON.stringify({ error: err.message }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-  }
-
-  // POST METHOD - สำหรับแอดมินอัปเดตสถานะเปิด/ปิดระบบในวันงาน
-  if (request.method === "POST") {
-    try {
-      const body = await request.json();
-      
-      if (body.hasOwnProperty("specialHintsRevealed")) {
-        await env.DB.prepare("UPDATE config SET value = ? WHERE key = 'special_hints_revealed'")
-          .bind(body.specialHintsRevealed ? "true" : "false")
-          .run();
-      }
-      
-      if (body.hasOwnProperty("guessingEnabled")) {
-        await env.DB.prepare("UPDATE config SET value = ? WHERE key = 'guessing_enabled'")
-          .bind(body.guessingEnabled ? "true" : "false")
-          .run();
-      }
-
-      return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" }
       });

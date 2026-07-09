@@ -1,0 +1,16 @@
+name = "stat-lineage-chat-worker"
+main = "src/index.js"
+compatibility_date = "2024-04-05"
+
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ChatRoom"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "stat-lineage-db"
+database_id = "d6914761-b14b-454d-b097-df9d305a5961"

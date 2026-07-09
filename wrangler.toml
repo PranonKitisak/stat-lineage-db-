@@ -1,0 +1,13 @@
+# wrangler.toml - การตั้งค่าสำหรับ Cloudflare Pages และ D1 Database
+name = "stat-lineage-app"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "stat-lineage-db"
+database_id = "d6914761-b14b-454d-b097-df9d305a5961"
+
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoom"
+script_name = "stat-lineage-chat-worker"

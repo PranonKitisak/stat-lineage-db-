@@ -1,9 +1,14 @@
 -- schema.sql - โครงสร้างตารางสำหรับ Cloudflare D1 Database
-DROP TABLE IF EXISTS config;
-DROP TABLE IF EXISTS lineages;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS hints;
+DROP TABLE IF EXISTS star_history;
 DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS buddy_messages;
+DROP TABLE IF EXISTS global_messages;
+DROP TABLE IF EXISTS hints;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS lineages;
+DROP TABLE IF EXISTS config;
+DROP TABLE IF EXISTS buddy_pairs;
+DROP TABLE IF EXISTS reports;
 
 -- ตารางตั้งค่าคอนฟิกระบบส่วนกลาง
 CREATE TABLE config (
@@ -15,18 +20,31 @@ CREATE TABLE config (
 CREATE TABLE lineages (
   id TEXT PRIMARY KEY,
   revealed INTEGER DEFAULT 0,
+  special_hint_revealed INTEGER DEFAULT 0,
   special_hint TEXT
 );
 
 -- ตารางข้อมูลนิสิตพี่รหัส/น้องรหัส
 CREATE TABLE users (
-  id TEXT PRIMARY KEY, -- รหัสนิสิต
+  id TEXT PRIMARY KEY,
   email TEXT,
+  password TEXT,
   name TEXT,
   major TEXT,
+  ig TEXT,
   avatar TEXT,
-  role TEXT, -- 'senior' หรือ 'junior'
+  role TEXT,
   lineage_id TEXT,
+  photo_url TEXT,
+  favorites TEXT,
+  stars INTEGER DEFAULT 0,
+  global_message_count INTEGER DEFAULT 0,
+  lineage_message_count INTEGER DEFAULT 0,
+  login_streak INTEGER DEFAULT 0,
+  last_login_date TEXT,
+  global_name TEXT,
+  has_seen_roulette INTEGER DEFAULT 0,
+  has_changed_password INTEGER DEFAULT 0,
   FOREIGN KEY(lineage_id) REFERENCES lineages(id)
 );
 
@@ -38,6 +56,9 @@ CREATE TABLE hints (
   FOREIGN KEY(lineage_id) REFERENCES lineages(id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_hints_lineage ON hints(lineage_id);
+CREATE INDEX IF NOT EXISTS idx_users_lineage_role ON users(lineage_id, role);
+
 -- ตารางเก็บประวัติข้อความแชท
 CREATE TABLE messages (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,8 +68,50 @@ CREATE TABLE messages (
   sender_role TEXT,
   text TEXT,
   timestamp TEXT,
+  is_read INTEGER DEFAULT 0,
   FOREIGN KEY(lineage_id) REFERENCES lineages(id)
 );
+
+CREATE TABLE global_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sender_id TEXT,
+  sender_name TEXT,
+  sender_role TEXT,
+  text TEXT,
+  timestamp TEXT,
+  is_system INTEGER DEFAULT 0
+);
+
+CREATE TABLE buddy_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  room_id TEXT,
+  sender_id TEXT,
+  sender_name TEXT,
+  sender_role TEXT,
+  text TEXT,
+  timestamp TEXT
+);
+
+-- ตารางประวัติดาว
+CREATE TABLE IF NOT EXISTS star_history (
+  id TEXT PRIMARY KEY,
+  user_id TEXT,
+  amount INTEGER,
+  reason TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS reports (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT,
+  user_name TEXT,
+  role TEXT,
+  problem_text TEXT,
+  contact_info TEXT,
+  status TEXT DEFAULT 'pending',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 
 -- -----------------------------------------------------
 -- ใส่ข้อมูลตั้งค่าและจำลองสายรหัสเบื้องต้น (Initial Data Seed)
@@ -56,14 +119,19 @@ CREATE TABLE messages (
 
 -- คอนฟิกวันงาน เริ่มต้นเป็นปิด (false)
 INSERT INTO config (key, value) VALUES ('special_hints_revealed', 'false');
+INSERT INTO config (key, value) VALUES ('admin_allow_special_hint', 'false');
 INSERT INTO config (key, value) VALUES ('guessing_enabled', 'false');
+
+-- บัญชี Admin ส่วนกลาง
+INSERT INTO users (id, email, password, name, role) VALUES 
+('admin', 'admin@stat59.com', 'admin1234', 'ผู้ดูแลระบบ (Admin)', 'admin');
 
 -- สายรหัสที่ 1: พี่นิค & น้องจูดี้
 INSERT INTO lineages (id, revealed, special_hint) VALUES ('lineage-01', 0, 'พี่เคยแต่งคอสเพลย์เป็นจิ้งจอกเก้าหางมาทำข้อสอบกลางภาคในคณะ!');
 
-INSERT INTO users (id, email, name, major, avatar, role, lineage_id) VALUES 
-('6732001026', 'nick.wilde@gmail.com', 'พี่นิค (Nick Wilde)', 'สถิติสารสนเทศและการวิเคราะห์ข้อมูล (STAT)', '🦊', 'senior', 'lineage-01'),
-('6832005042', 'judy.hopps@outlook.com', 'น้องจูดี้ (Judy Hopps)', 'สถิติสารสนเทศและการวิเคราะห์ข้อมูล (STAT)', '🐰', 'junior', 'lineage-01');
+INSERT INTO users (id, email, password, name, major, ig, avatar, role, lineage_id) VALUES 
+('6732001026', 'nick.wilde@gmail.com', 'N1cK88', 'พี่นิค (Nick Wilde)', 'สถิติสารสนเทศและการวิเคราะห์ข้อมูล (STAT)', '@nick_wilde', '🦊', 'senior', 'lineage-01'),
+('6832005042', 'judy.hopps@outlook.com', 'JuDy99', 'น้องจูดี้ (Judy Hopps)', 'สถิติสารสนเทศและการวิเคราะห์ข้อมูล (STAT)', '@judy_h', '🐰', 'junior', 'lineage-01');
 
 INSERT INTO hints (lineage_id, hint_text) VALUES 
 ('lineage-01', 'พี่ตัวสูงกว่าหนูอยู่นะ มีสีส้มๆ แดงๆ ในตัว (หรือเปล่า?)'),
@@ -78,10 +146,10 @@ INSERT INTO messages (lineage_id, sender_id, sender_name, sender_role, text, tim
 -- สายรหัสที่ 2: พี่แฟลช (มีน้องรหัส 2 คนคือ น้องพริสซิลลา และน้องแกะน้อย)
 INSERT INTO lineages (id, revealed, special_hint) VALUES ('lineage-02', 0, 'คำใบ้พิเศษคือ... พี่เคยเผลอทำแก้วชานมไข่มุกร่วงใส่เป๋าเป้เพื่อนรหัสตอนอยู่ปี 1 จ้า 5555');
 
-INSERT INTO users (id, email, name, major, avatar, role, lineage_id) VALUES 
-('6732002015', 'flash.sloth@gmail.com', 'พี่แฟลช (Flash Slothmore)', 'วิทยาการจัดการข้อมูล (Data Science)', '🦥', 'senior', 'lineage-02'),
-('6832006011', 'priscilla.sloth@gmail.com', 'น้องพริสซิลลา (Priscilla Sloth)', 'วิทยาการจัดการข้อมูล (Data Science)', '🦦', 'junior', 'lineage-02'),
-('6832006022', 'little.sheep@outlook.com', 'น้องแกะน้อย (Little Sheep)', 'การประกันภัย (Insurance)', '🐑', 'junior', 'lineage-02');
+INSERT INTO users (id, email, password, name, major, ig, avatar, role, lineage_id) VALUES 
+('6732002015', 'flash.sloth@gmail.com', 'fL4sH1', 'พี่แฟลช (Flash Slothmore)', 'วิทยาการจัดการข้อมูล (Data Science)', '@flash_speed', '🦥', 'senior', 'lineage-02'),
+('6832006011', 'priscilla.sloth@gmail.com', 'pRiS22', 'น้องพริสซิลลา (Priscilla Sloth)', 'วิทยาการจัดการข้อมูล (Data Science)', '@priscilla.s', '🦦', 'junior', 'lineage-02'),
+('6832006022', 'little.sheep@outlook.com', 'sHeEp3', 'น้องแกะน้อย (Little Sheep)', 'การประกันภัย (Insurance)', '@lil_sheep', '🐑', 'junior', 'lineage-02');
 
 INSERT INTO hints (lineage_id, hint_text) VALUES 
 ('lineage-02', 'คำ... ใบ้... นี้... พิมพ์... ช้า... มาก... นะ... น้อง... รหัส...'),
@@ -97,9 +165,9 @@ INSERT INTO messages (lineage_id, sender_id, sender_name, sender_role, text, tim
 -- สายรหัสที่ 3: พี่โบโก & น้องคลอฮาวเซอร์
 INSERT INTO lineages (id, revealed, special_hint) VALUES ('lineage-03', 0, 'พี่มีโมเดลฟิกเกอร์สารวัตรควายป่าสูงสองฟุตตั้งโชว์อยู่ในห้องนอน!');
 
-INSERT INTO users (id, email, name, major, avatar, role, lineage_id) VALUES 
-('6732003055', 'chief.bogo@gmail.com', 'พี่สารวัตรโบโก (Chief Bogo)', 'การประกันภัย (Insurance)', '🐃', 'senior', 'lineage-03'),
-('6832007077', 'clawhauser.donut@gmail.com', 'น้องคลอฮาวเซอร์ (Clawhauser)', 'สถิติประยุกต์ (Applied Stat)', '🐆', 'junior', 'lineage-03');
+INSERT INTO users (id, email, password, name, major, ig, avatar, role, lineage_id) VALUES 
+('6732003055', 'chief.bogo@gmail.com', 'B0gO55', 'พี่สารวัตรโบโก (Chief Bogo)', 'การประกันภัย (Insurance)', '@bogo_chief', '🐃', 'senior', 'lineage-03'),
+('6832007077', 'clawhauser.donut@gmail.com', 'cLaW77', 'น้องคลอฮาวเซอร์ (Clawhauser)', 'สถิติประยุกต์ (Applied Stat)', '@claw_donut', '🐆', 'junior', 'lineage-03');
 
 INSERT INTO hints (lineage_id, hint_text) VALUES 
 ('lineage-03', 'พี่ตัวใหญ่และดูน่ากลัว แต่จริงๆ พี่เป็นคนใจดีและรักดนตรีคลาสสิกนะ'),

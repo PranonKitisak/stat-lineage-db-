@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Fortune</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-overlay"></div>
+    <div class="container">
+        <header class="header">
+            <img src="../Banner Zootopia.PNG" alt="Banner" class="banner">
+            <h1>ระบบหมุนวงล้อ</h1>
+        </header>
+        
+        <main class="main-content">
+            <section class="input-section glass-panel">
+                <h2>รายชื่อผู้เข้าร่วม</h2>
+                <p>พิมพ์ชื่อที่นี่ (คั่นด้วยบรรทัดใหม่, ช่องว่าง, หรือลูกน้ำ)</p>
+                <textarea id="nameList" rows="10" placeholder="ใส่ชื่อตรงนี้..."></textarea>
+                <button id="updateWheelBtn" class="primary-btn">อัปเดตวงล้อ</button>
+            </section>
+
+            <section class="wheel-section glass-panel">
+                <div class="wheel-container">
+                    <canvas id="wheelCanvas" width="400" height="400"></canvas>
+                    <div class="pointer">▼</div>
+                </div>
+                <button id="spinBtn" class="spin-btn primary-btn" disabled>หมุนเลย!</button>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Result -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content glass-panel">
+            <h2 id="winnerName">ชื่อผู้ชนะ</h2>
+            <div class="modal-actions">
+                <button id="keepBtn" class="action-btn keep-btn">ให้อยู่ต่อ</button>
+                <button id="removeBtn" class="action-btn remove-btn">เอาออก</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
