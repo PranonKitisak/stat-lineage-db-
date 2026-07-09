@@ -159,6 +159,15 @@ function connectGlobalWebSocket() {
         // เมื่อมีการ bulk action ให้อัปเดตข้อมูลสายรหัสใหม่ทันที
         if (typeof syncWithServer === 'function') {
           syncWithServer().then(() => {
+            if (currentSession && typeof getLineages === 'function') {
+              const updatedLineages = getLineages();
+              const myLin = updatedLineages.find(l => l.id === currentSession.lineage.id);
+              if (myLin) {
+                currentSession.lineage = myLin;
+                sessionStorage.setItem('stat_session', JSON.stringify(currentSession));
+              }
+            }
+
             if (currentSession && currentSession.role === 'junior') {
               const cardInner = document.getElementById('reveal-card-inner');
             if (data.action === 'reveal_lineages') {

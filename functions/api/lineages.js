@@ -60,6 +60,7 @@ export async function onRequest(context) {
           id: lineageResult.id,
           revealed: lineageResult.revealed === 1,
           specialHint: lineageResult.special_hint,
+          specialHintRevealed: lineageResult.special_hint_revealed === 1,
           hints: hints,
           senior: seniorResult ? {
             id: seniorResult.id,
@@ -161,6 +162,7 @@ export async function onRequest(context) {
           id: lin.id,
           revealed: lin.revealed === 1,
           specialHint: lin.special_hint,
+          specialHintRevealed: lin.special_hint_revealed === 1,
           hints: hints,
           senior: senior ? {
             id: senior.id,
