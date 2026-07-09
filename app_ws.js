@@ -157,9 +157,10 @@ function connectGlobalWebSocket() {
         fetchLeaderboard();
       } else if (data.type === 'admin_bulk_action') {
         // เมื่อมีการ bulk action ให้อัปเดตข้อมูลสายรหัสใหม่ทันที
-        fetchLineages().then(() => {
-          if (currentSession && currentSession.role === 'junior') {
-            const cardInner = document.getElementById('reveal-card-inner');
+        if (typeof syncWithServer === 'function') {
+          syncWithServer().then(() => {
+            if (currentSession && currentSession.role === 'junior') {
+              const cardInner = document.getElementById('reveal-card-inner');
             if (data.action === 'reveal_lineages') {
               if (data.value) {
                 if (cardInner && !cardInner.classList.contains('flipped')) {
@@ -179,6 +180,7 @@ function connectGlobalWebSocket() {
             if (typeof renderSeniorHints === 'function') renderSeniorHints();
           }
         });
+        } // End if syncWithServer
       }
     } catch (e) {}
   };

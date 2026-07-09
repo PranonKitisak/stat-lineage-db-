@@ -893,7 +893,9 @@ window.adminBulkAction = async function(checkboxElem, actionType) {
         }));
       }
       alert("ทำรายการสำเร็จ! หน้าจอของผู้ใช้ทั้งหมดกำลังถูกอัปเดต");
-      fetchLineages(); // ให้แอดมินโหลดข้อมูลใหม่เองด้วย
+      if (typeof renderAdminDashboard === 'function') {
+        renderAdminDashboard(); // ให้แอดมินโหลดข้อมูลใหม่เองด้วย
+      }
     } else {
       const err = await res.json();
       alert("เกิดข้อผิดพลาด: " + err.error);
