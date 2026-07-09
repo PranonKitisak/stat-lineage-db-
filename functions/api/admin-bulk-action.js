@@ -7,7 +7,7 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const { adminId, action } = await request.json();
+    const { adminId, action, value } = await request.json();
 
     // Verify admin role
     const adminUser = await env.DB.prepare("SELECT role FROM users WHERE id = ?").bind(adminId).first();
@@ -15,12 +15,14 @@ export async function onRequestPost(context) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
     }
 
+    const val = value ? 1 : 0;
+
     if (action === 'reveal_lineages') {
-      // Reveal all lineages
-      await env.DB.prepare("UPDATE lineages SET revealed = 1").run();
+      // Toggle all lineages
+      await env.DB.prepare("UPDATE lineages SET revealed = ?").bind(val).run();
     } else if (action === 'reveal_special_hints') {
-      // Reveal special hints for all lineages
-      await env.DB.prepare("UPDATE lineages SET special_hint_revealed = 1").run();
+      // Toggle special hints for all lineages
+      await env.DB.prepare("UPDATE lineages SET special_hint_revealed = ?").bind(val).run();
     } else {
       return new Response(JSON.stringify({ error: "Invalid action" }), { status: 400 });
     }

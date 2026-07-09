@@ -857,12 +857,19 @@ function renderChatMessages() {
   `;
 }
 
-// คำสั่ง Bulk Action ของแอดมิน
-window.adminBulkAction = async function(actionType) {
+// คำสั่ง Bulk Action ของแอดมิน (แบบเปิด/ปิด)
+window.adminBulkAction = async function(checkboxElem, actionType) {
+  const value = checkboxElem.checked;
+  let confirmMsg = "";
   if (actionType === 'reveal_lineages') {
-    if (!confirm("คุณแน่ใจหรือไม่ที่จะ 'เฉลยสายรหัสทั้งหมด' ทันที? (การกระทำนี้ส่งผลต่อทุกคน)")) return;
+    confirmMsg = value ? "คุณแน่ใจหรือไม่ที่จะ 'เฉลยสายรหัสทั้งหมด' ทันที? (การกระทำนี้ส่งผลต่อทุกคน)" : "คุณแน่ใจหรือไม่ที่จะ 'ปิดกลับ' การเฉลยสายรหัสของทุกคน?";
   } else if (actionType === 'reveal_special_hints') {
-    if (!confirm("คุณแน่ใจหรือไม่ที่จะ 'เปิดคำใบ้พิเศษ' ให้น้องทุกคนเห็นฟรีๆ ทันที?")) return;
+    confirmMsg = value ? "คุณแน่ใจหรือไม่ที่จะ 'เปิดคำใบ้พิเศษ' ให้น้องทุกคนเห็นฟรีๆ ทันที?" : "คุณแน่ใจหรือไม่ที่จะ 'ซ่อนคำใบ้พิเศษ' จากทุกคน?";
+  }
+
+  if (!confirm(confirmMsg)) {
+    checkboxElem.checked = !value; // ยกเลิกการเปลี่ยนค่า
+    return;
   }
 
   try {
@@ -871,7 +878,8 @@ window.adminBulkAction = async function(actionType) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         adminId: currentSession.user.id,
-        action: actionType
+        action: actionType,
+        value: value
       })
     });
     
@@ -880,7 +888,8 @@ window.adminBulkAction = async function(actionType) {
       if (typeof globalWs !== 'undefined' && globalWs && globalWs.readyState === WebSocket.OPEN) {
         globalWs.send(JSON.stringify({
           type: 'admin_bulk_action',
-          action: actionType
+          action: actionType,
+          value: value
         }));
       }
       alert("ทำรายการสำเร็จ! หน้าจอของผู้ใช้ทั้งหมดกำลังถูกอัปเดต");
@@ -888,9 +897,11 @@ window.adminBulkAction = async function(actionType) {
     } else {
       const err = await res.json();
       alert("เกิดข้อผิดพลาด: " + err.error);
+      checkboxElem.checked = !value; // revert on error
     }
   } catch (err) {
     alert("เชื่อมต่อขัดข้อง");
+    checkboxElem.checked = !value; // revert on error
   }
 }
 
@@ -1554,14 +1565,29 @@ async function renderAdminDashboard() {
       <!-- คำสั่งแอดมินระดับสูง (Bulk Actions) -->
       <h3 style="color: #ff6b6b; margin-top: 30px; margin-bottom: 10px;">🚨 คำสั่งแอดมินระดับสูง</h3>
       <div style="background: rgba(255,107,107,0.1); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(255,107,107,0.3);">
-        <p style="color: #ff6b6b; margin-bottom: 15px; font-size: 0.9em;">⚠️ คำเตือน: การกดปุ่มเหล่านี้จะส่งผลต่อผู้ใช้ทุกคนในระบบทันที และไม่สามารถย้อนกลับได้ง่าย</p>
+        <p style="color: #ff6b6b; margin-bottom: 15px; font-size: 0.9em;">⚠️ คำเตือน: การสลับสวิตช์เหล่านี้จะส่งผลต่อผู้ใช้ทุกคนในระบบทันที</p>
         <div style="display: flex; flex-direction: column; gap: 15px;">
-          <button onclick="adminBulkAction('reveal_special_hints')" class="dev-btn" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b; justify-content: center; font-weight: bold; padding: 15px; font-size: 16px;">
-            🔓 เปิดเผยคำใบ้พิเศษแก่น้องๆ ทุกคน (บังคับเปิด)
-          </button>
-          <button onclick="adminBulkAction('reveal_lineages')" class="dev-btn" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b; justify-content: center; font-weight: bold; padding: 15px; font-size: 16px;">
-            📢 เฉลยสายรหัสทั้งหมด (บังคับเฉลยทุกคน)
-          </button>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+            <div>
+              <strong style="color: #ff6b6b;">🔓 เปิดเผยคำใบ้พิเศษแก่น้องๆ ทุกคน (บังคับเปิด/ปิด)</strong>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="bulk-toggle-special" onchange="adminBulkAction(this, 'reveal_special_hints')">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+            <div>
+              <strong style="color: #ff6b6b;">📢 เฉลยสายรหัสทั้งหมด (บังคับเฉลยทุกคน)</strong>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="bulk-toggle-lineages" onchange="adminBulkAction(this, 'reveal_lineages')">
+              <span class="slider"></span>
+            </label>
+          </div>
+
         </div>
       </div>
 
@@ -1583,6 +1609,18 @@ async function renderAdminDashboard() {
     const data = await res.json();
     if (res.ok) {
       window.adminDataCache = data;
+      
+      // Update bulk toggles state
+      if (data.lineages && data.lineages.length > 0) {
+        const allRevealed = data.lineages.every(l => l.revealed === 1);
+        const allSpecialRevealed = data.lineages.every(l => l.special_hint_revealed === 1);
+        
+        const bulkLineageToggle = document.getElementById('bulk-toggle-lineages');
+        if (bulkLineageToggle) bulkLineageToggle.checked = allRevealed;
+        
+        const bulkSpecialToggle = document.getElementById('bulk-toggle-special');
+        if (bulkSpecialToggle) bulkSpecialToggle.checked = allSpecialRevealed;
+      }
       renderAdminUsersTable(data.users);
     } else {
       alert("โหลดข้อมูลล้มเหลว");

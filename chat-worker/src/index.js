@@ -107,7 +107,8 @@ export class ChatRoom {
         this.broadcast(JSON.stringify({ type: 'admin_update_stars', userId: data.userId, stars: data.stars, name: data.name }));
       } else if (data.type === 'admin_bulk_action') {
         if (session.role !== 'admin') return;
-        this.broadcast(JSON.stringify({ type: 'admin_bulk_action', action: data.action }));
+        // Broadcast bulk action to all connected clients
+        this.broadcast(JSON.stringify({ type: 'admin_bulk_action', action: data.action, value: data.value }));
       } else if (data.type === 'admin_airdrop') {
         if (session.role !== 'admin') return;
         if (session.userId) {

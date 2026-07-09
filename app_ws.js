@@ -161,9 +161,15 @@ function connectGlobalWebSocket() {
           if (currentSession && currentSession.role === 'junior') {
             const cardInner = document.getElementById('reveal-card-inner');
             if (data.action === 'reveal_lineages') {
-              if (cardInner && !cardInner.classList.contains('flipped')) {
-                cardInner.classList.add('flipped');
-                if (typeof startConfetti === 'function') startConfetti();
+              if (data.value) {
+                if (cardInner && !cardInner.classList.contains('flipped')) {
+                  cardInner.classList.add('flipped');
+                  if (typeof startConfetti === 'function') startConfetti();
+                }
+              } else {
+                if (cardInner && cardInner.classList.contains('flipped')) {
+                  cardInner.classList.remove('flipped');
+                }
               }
               if (typeof renderJuniorSeniorCardDetails === 'function') renderJuniorSeniorCardDetails();
             } else if (data.action === 'reveal_special_hints') {
