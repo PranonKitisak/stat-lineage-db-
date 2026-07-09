@@ -90,12 +90,26 @@ function setupEventListeners() {
   // ปิด drawer เมื่อคลิกภายนอก
   document.addEventListener('click', (e) => {
     if (devDrawer && devDrawer.classList.contains('open')) {
-      if (!devDrawer.contains(e.target) && !devToggle.contains(e.target)) {
+      if (!devDrawer.contains(e.target) && (!devToggle || !devToggle.contains(e.target))) {
         devDrawer.classList.remove('open');
       }
     }
   });
 }
+
+// ฟังก์ชันเปิดปิด Dev Tools Drawer จากปุ่มหน้า Admin
+window.toggleDevDrawer = function() {
+  const drawer = document.getElementById('dev-drawer');
+  if (drawer) {
+    if (drawer.style.display === 'none') {
+      drawer.style.display = 'flex';
+      setTimeout(() => drawer.classList.add('open'), 10);
+    } else {
+      drawer.classList.remove('open');
+      setTimeout(() => drawer.style.display = 'none', 300); // Wait for transition
+    }
+  }
+};
 
 // ฟังก์ชันทำเรื่องล็อกอิน
 async function handleLogin(e) {
@@ -1467,7 +1481,10 @@ async function renderAdminDashboard() {
     <div class="glass-panel" style="max-width: 1000px; margin: 0 auto; text-align: left;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 style="color: var(--accent-gold); font-family: 'Prompt', sans-serif;">🛠️ แผงควบคุมผู้ดูแลระบบ</h2>
-        <button class="logout-btn" onclick="handleLogout()">ออกจากระบบ</button>
+        <div style="display: flex; gap: 10px;">
+          <button class="dev-btn" onclick="toggleDevDrawer()" style="padding: 8px 15px; font-size: 0.9rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer; color: white;">👨‍💻 Dev Tools</button>
+          <button class="logout-btn" onclick="handleLogout()">ออกจากระบบ</button>
+        </div>
       </div>
       
       <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px;">
