@@ -1491,43 +1491,61 @@ async function renderAdminDashboard() {
       
 
       <!-- พี่รหัส -->
-      <h3 style="color: var(--accent-gold); margin-bottom: 10px;">👑 รายชื่อพี่รหัส</h3>
-      <div style="overflow-x: auto; margin-bottom: 30px;">
-        <table class="admin-table" id="admin-seniors-table">
-          <thead>
-            <tr>
-              <th>รหัสนิสิต</th>
-              <th>ชื่อ</th>
-              <th>สายรหัส</th>
-              <th>น้องรหัส</th>
-              <th>ดาว</th>
-              <th>จัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td colspan="4" style="text-align: center;">กำลังโหลดข้อมูล...</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <details style="margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;">
+        <summary style="color: var(--accent-gold); font-size: 1.17em; font-weight: bold; cursor: pointer;">👑 รายชื่อพี่รหัส (กดเพื่อดู/ซ่อน)</summary>
+        <div style="overflow-x: auto; margin-top: 15px;">
+          <table class="admin-table" id="admin-seniors-table">
+            <thead>
+              <tr>
+                <th>รหัสนิสิต</th>
+                <th>ชื่อ</th>
+                <th>สายรหัส</th>
+                <th>น้องรหัส</th>
+                <th>ดาว</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="4" style="text-align: center;">กำลังโหลดข้อมูล...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
 
       <!-- น้องรหัส -->
-      <h3 style="color: var(--primary-teal); margin-bottom: 10px;">🐰 รายชื่อน้องรหัส</h3>
-      <div style="overflow-x: auto; margin-bottom: 30px;">
-        <table class="admin-table" id="admin-juniors-table">
-          <thead>
-            <tr>
-              <th>รหัสนิสิต</th>
-              <th>ชื่อ</th>
-              <th>สายรหัส</th>
-              <th>พี่รหัส</th>
-              <th>ดาว</th>
-              <th>จัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td colspan="6" style="text-align: center;">กำลังโหลดข้อมูล...</td></tr>
-          </tbody>
-        </table>
+      <details style="margin-bottom: 30px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;">
+        <summary style="color: var(--primary-teal); font-size: 1.17em; font-weight: bold; cursor: pointer;">🐰 รายชื่อน้องรหัส (กดเพื่อดู/ซ่อน)</summary>
+        <div style="overflow-x: auto; margin-top: 15px;">
+          <table class="admin-table" id="admin-juniors-table">
+            <thead>
+              <tr>
+                <th>รหัสนิสิต</th>
+                <th>ชื่อ</th>
+                <th>สายรหัส</th>
+                <th>พี่รหัส</th>
+                <th>ดาว</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="6" style="text-align: center;">กำลังโหลดข้อมูล...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <!-- คำสั่งแอดมินระดับสูง (Bulk Actions) -->
+      <h3 style="color: #ff6b6b; margin-top: 30px; margin-bottom: 10px;">🚨 คำสั่งแอดมินระดับสูง</h3>
+      <div style="background: rgba(255,107,107,0.1); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid rgba(255,107,107,0.3);">
+        <p style="color: #ff6b6b; margin-bottom: 15px; font-size: 0.9em;">⚠️ คำเตือน: การกดปุ่มเหล่านี้จะส่งผลต่อผู้ใช้ทุกคนในระบบทันที และไม่สามารถย้อนกลับได้ง่าย</p>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+          <button onclick="adminBulkAction('reveal_special_hints')" class="dev-btn" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b; justify-content: center; font-weight: bold; padding: 15px; font-size: 16px;">
+            🔓 เปิดเผยคำใบ้พิเศษแก่น้องๆ ทุกคน (บังคับเปิด)
+          </button>
+          <button onclick="adminBulkAction('reveal_lineages')" class="dev-btn" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b; justify-content: center; font-weight: bold; padding: 15px; font-size: 16px;">
+            📢 เฉลยสายรหัสทั้งหมด (บังคับเฉลยทุกคน)
+          </button>
+        </div>
       </div>
 
       <!-- แจ้งปัญหา -->
