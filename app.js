@@ -188,20 +188,20 @@ async function restoreSession() {
       const lineages = getLineages();
       const updatedLin = lineages.find(l => l.id === parsed.lineage.id);
       if (updatedLin) {
+        const freshUser = parsed.role === 'senior' ? updatedLin.senior : updatedLin.juniors.find(j => j.id === parsed.user.id);
+        
         currentSession = {
           role: parsed.role,
-          user: parsed.role === 'senior' ? updatedLin.senior : updatedLin.juniors.find(j => j.id === parsed.user.id),
+          user: parsed.user, // Keep all existing user data (stars, globalName, etc.)
           lineage: updatedLin,
           config: freshConfig
         };
-        // ถ้า user จาก localStorage ใช้ parsed.user สำหรับข้อมูลที่ล้าหลังใน DB (like hasSeenRoulette)
-        if (!currentSession.user) {
-          currentSession.user = parsed.user;
-        } else {
-          // แมเจ้ hasChangedPassword และ hasSeenRoulette จาก saved session
-          currentSession.user.hasChangedPassword = parsed.user.hasChangedPassword;
-          currentSession.user.hasSeenRoulette = parsed.user.hasSeenRoulette;
+
+        if (freshUser) {
+          // Overwrite only the properties that are updated from lineages API (name, avatar, etc.)
+          Object.assign(currentSession.user, freshUser);
         }
+
         sessionStorage.setItem('stat_session', JSON.stringify(currentSession));
       } else {
         currentSession = parsed;
