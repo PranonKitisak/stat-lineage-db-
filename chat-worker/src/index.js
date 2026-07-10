@@ -83,6 +83,9 @@ export class ChatRoom {
             }
 
             if (questCompleted) {
+              const historyId = crypto.randomUUID();
+              await this.env.DB.prepare("INSERT INTO star_history (id, user_id, amount, reason) VALUES (?, ?, ?, ?)")
+                .bind(historyId, data.message.senderId, 1, `ภารกิจ${missionName}`).run();
               try { ws.send(JSON.stringify({ type: 'system', message: { text: `🌟 ยินดีด้วย! คุณทำภารกิจส่งข้อความครบ 5 ข้อความใน${missionName} ได้รับ 1 ดาว!` } })); } catch (e) {}
             }
           }
