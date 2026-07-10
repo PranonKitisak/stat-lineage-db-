@@ -232,10 +232,16 @@ function showAuth() {
 
 // ออกจากระบบ
 function handleLogout() {
-  
   currentSession = null;
   sessionStorage.removeItem('stat_session');
-  document.getElementById('app-navbar').style.display = 'none';
+  sessionStorage.removeItem('stat_admin_session');
+  
+  const impBanner = document.getElementById('impersonate-banner');
+  if (impBanner) impBanner.style.display = 'none';
+  const appNavbar = document.getElementById('app-navbar');
+  if (appNavbar) appNavbar.style.top = '0';
+
+  appNavbar.style.display = 'none';
   document.getElementById('countdown-container').style.display = 'none';
   document.getElementById('globalchat-section').style.display = 'none';
   if (typeof globalWs !== 'undefined' && globalWs) {
@@ -255,6 +261,19 @@ function renderDashboard() {
   document.getElementById('globalchat-section').style.display = 'none';
   const dashboard = document.getElementById('dashboard-section');
   dashboard.style.display = 'block';
+  
+  const impBanner = document.getElementById('impersonate-banner');
+  const appNavbar = document.getElementById('app-navbar');
+  if (impBanner) {
+    if (sessionStorage.getItem('stat_admin_session') && currentSession.role !== 'admin') {
+      document.getElementById('impersonate-banner-text').innerHTML = `🕵️ คุณกำลังสวมรอยเป็น: ${currentSession.user.name} (${currentSession.role})`;
+      impBanner.style.display = 'flex';
+      appNavbar.style.top = impBanner.offsetHeight + 'px';
+    } else {
+      impBanner.style.display = 'none';
+      appNavbar.style.top = '0';
+    }
+  }
 
   // ล้างเนื้อหาเก่าในแดชบอร์ด
   dashboard.innerHTML = '';
@@ -1045,6 +1064,12 @@ async function devLogin(role, email, id) {
 
     if (res.ok) {
       const result = await res.json();
+      
+      // ถ้าตอนนี้เราล็อกอินเป็น admin อยู่ ให้แอบเก็บเซสชัน admin ไว้
+      if (currentSession && currentSession.role === 'admin') {
+        sessionStorage.setItem('stat_admin_session', JSON.stringify(currentSession));
+      }
+      
       currentSession = result;
       sessionStorage.setItem('stat_session', JSON.stringify(result));
 
@@ -1058,6 +1083,31 @@ async function devLogin(role, email, id) {
     console.error("Error in dev login:", err);
   }
 }
+
+window.returnToAdminMode = function() {
+  const adminSession = sessionStorage.getItem('stat_admin_session');
+  if (adminSession) {
+    currentSession = JSON.parse(adminSession);
+    sessionStorage.setItem('stat_session', adminSession);
+    sessionStorage.removeItem('stat_admin_session');
+    
+    // รีเซ็ตการเชื่อมต่อ WebSocket
+    if (typeof globalWs !== 'undefined' && globalWs) {
+      globalWs.close();
+      globalWs = null;
+    }
+    if (typeof lineageWs !== 'undefined' && lineageWs) {
+      lineageWs.close();
+      lineageWs = null;
+    }
+    
+    renderDashboard();
+    
+    // เลื่อนหน้าจอกลับไปที่ตารางรายชื่อเผื่อแอดมินดูค้างไว้
+    const tableSection = document.getElementById('admin-users-table');
+    if (tableSection) tableSection.scrollIntoView({ behavior: 'smooth' });
+  }
+};
 
 // ฟังก์ชันเปิด/ปิด การเฉลยสายรหัสจากแผงควบคุมแอดมิน
 function devToggleReveal(lineageId) {

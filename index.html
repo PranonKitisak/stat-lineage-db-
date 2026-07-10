@@ -22,8 +22,14 @@
     </div>
   </header>
 
+  <!-- Impersonate Banner -->
+  <div id="impersonate-banner" style="display: none; position: sticky; top: 0; z-index: 101; background: #e74c3c; color: white; padding: 10px; text-align: center; font-weight: bold; justify-content: center; align-items: center; gap: 15px; font-size: 0.9rem; width: 100%;">
+    <span id="impersonate-banner-text">🕵️ คุณกำลังสวมรอยเป็น: -</span>
+    <button onclick="returnToAdminMode()" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-family: inherit; font-size: 0.8rem; transition: background 0.2s;">🔙 กลับโหมดแอดมิน</button>
+  </div>
+
   <!-- Fixed Navigation Bar (แสดงเมื่อล็อกอินแล้ว) -->
-  <nav id="app-navbar" class="app-navbar" style="display: none;">
+  <nav id="app-navbar" class="app-navbar" style="display: none; top: 0;">
     <div class="navbar-left">
       <button id="nav-dashboard-btn" class="nav-btn active" onclick="navigateTo('dashboard')">
         🏠 หน้าหลัก
