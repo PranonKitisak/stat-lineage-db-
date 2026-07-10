@@ -295,11 +295,13 @@ function renderDashboard() {
 
   document.getElementById('dev-drawer').style.display = 'none';
 
+  // อัปเดตดาวใน Navbar เสมอ (รวมถึงแอดมินด้วย)
+  document.getElementById('star-count-val').innerText = currentSession.user.stars || 0;
+
   if (role !== 'admin') {
-    // แสดง Navbar พร้อมดาวและ Streak
+    // แสดง Navbar และ Streak
     document.getElementById('app-navbar').style.display = 'flex';
     document.getElementById('navbar-streak').style.display = 'flex';
-    document.getElementById('star-count-val').innerText = currentSession.user.stars || 0;
     document.getElementById('streak-count-val').innerText = currentSession.user.loginStreak || 0;
 
     // Init Countdown
